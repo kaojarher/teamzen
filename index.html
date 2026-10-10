@@ -485,7 +485,7 @@ const DL=()=>AREAS[ai].lv;
 const STORY='諸星之間的星海裂隙持續擴大，各星球的「小王」相繼甦醒。你是天仙戰隊的隊長玄鋒，戰隊成員各有所長，並能合體成仙俠機關人。\n\n每次任務都會傳送到隨機的星球，面對不同的地形、敵人與詞綴。累積能量後合體，打破小王的護盾，守住星海。';
 function init(){party=[mk('玄鋒','🛡️',44,6,3,0,['sw','ax','sp','mc']),mk('青蘅','🧑‍⚕️',32,3,1,'heal',['mc','st'])];
  gold=150;pot=3;xp=0;lv=1;st=[];logs=[];bag=[];lid=0;busy=false;done={};has={};qs={};visited=new Set();hires=[];bless=0;day=1;SHOP={};WITCH={};oracle=0;fal=0;wl=0;
- $('#ov').style.display='none';enter(0);say('📖 仙途開啟：你們在青牛鎮落腳');say('山道／渡口／雲舟可前往其他城鎮；找 🚪 山門出城探索');
+ $('#ov').style.display='none';enter(0);say('📖 天仙戰隊集結：你們在天仙基地待命');say('找 🧙 任務官蘇璃接任務，出發前別忘了補給與招募隊員');
  ui('🧙‍♂️','《天仙戰隊》',STORY,[{t:'開始冒險',f:closeUI}]);setTab('log')}
 function enter(id){ai=id;const A=AREAS[id];if(A.ty!='town'||!st[id])st[id]=gen(id);const S=st[id];S.x=S.sx;S.y=S.sy;
  if(A.ty=='town')visited.add(id);say(`${A.i} 抵達「${A.n}」 第${day}天 ${WD[(day-1)%7]}`);build();render()}
@@ -856,22 +856,22 @@ const PLANETS=[
 const MTYPES=[{id:'hunt',n:'追擊小王'},{id:'core',n:'奪取靈核'},{id:'sweep',n:'掃蕩妖群'}];
 const AFFIX=[{id:'calm',n:'平靜'},{id:'hot',n:'烈焰（敵攻+25%）'},{id:'armor',n:'厚甲（敵血+30%）'},{id:'rich',n:'富礦（額外靈石）'}];
 QI.core='💠 靈核';FEAT.mission='🛕';
-SVC[0]=[['falagar','🧙‍♂️','教官白澤'],['mission','🛰️','任務傳送台'],['shop','🏪','靈器鋪'],['inn','🍺','客棧'],['temple','🙏','靈泉洞府']];
-Object.assign(AREAS[0],{n:'天仙基地',i:'🛰️'});
+SVC[0]=[['falagar','🧙‍♂️','教官白澤'],['mission','🧙','任務官 蘇璃'],['shop','🏪','靈器鋪'],['inn','🍺','客棧'],['temple','🙏','靈泉洞府']];
+Object.assign(AREAS[0],{n:'天仙基地',i:'🏯'});
 const pick=a=>a[R(a.length)];
 function mxRoll(){const b=Math.min(4,(lv-1)>>1);MX.offers=[0,1,2].map(()=>({p:pick(PLANETS),t:pick(MTYPES),a:pick(AFFIX),L:Math.min(4,b+R(2))}))}
-function mxStart(o){MX.area=AREAS[MS]=mkLoc({n:`${o.p.n}·${o.t.n}`,i:o.p.i,ty:o.p.ty,th:o.p.th,lv:o.L,par:0,mon:o.p.mon,boss:o.p.boss,qi:o.t.id=='core'?'core':undefined,mx:{t:o.t.id,af:o.a.id}});
+function mxStart(o){MX.area=AREAS[MS]=mkLoc({n:`${o.p.n}·${o.t.n}`,i:o.p.i,ty:o.p.ty,th:o.p.th,lv:o.L,par:0,w:40,h:30,mon:o.p.mon,boss:o.p.boss,qi:o.t.id=='core'?'core':undefined,mx:{t:o.t.id,af:o.a.id}});
  done[MS]=0;delete has.core;Object.assign(MX,{kills:0,fin:0,on:0,en:0});closeUI();enter(MS);say(`🚀 出發：${MX.area.n}｜詞綴：${o.a.n}`)}
 SV.mission=e=>{if(!MX.offers.length)mxRoll();
  const o=MX.offers.map(f=>({t:`${f.p.i} ${f.p.n}｜${f.t.n}｜${f.a.n}｜建議 Lv${f.L*2+1}`,f:()=>mxStart(f)}));
  if(MX.area&&!MX.fin)o.unshift({t:`↩ 回到進行中：${MX.area.n}`,f:()=>{closeUI();enter(MS)}});
  o.push({t:'🔄 換一批任務',f:()=>{mxRoll();SV.mission(e)}});
- ui('🛰️','任務傳送台',`每次出發都是隨機星球、關卡與詞綴。\n已完成任務：${MX.cnt}`,o)};
+ ui('🧙','任務官 蘇璃',`「隊長，今天要去哪顆星球？」每次出發都是隨機星球、關卡與詞綴。\n已完成任務：${MX.cnt}`,o)};
 const _gate=SV.gate;SV.gate=e=>ai==0?SV.mission(e):_gate(e);
 const goalTxt=()=>{const a=AREAS[MS].mx;return a.t=='hunt'?'擊敗小王':a.t=='core'?'取得靈核 📦':`掃蕩 ${MX.kills}/6`};
 function mxDone(){MX.fin=1;MX.cnt++;MX.offers=[];const L=AREAS[MS].lv,g=40+L*30;gold+=g;pot++;const up=gainXp(30+L*20);giveItem(genItem(L+1));
- say(`🏆 任務完成！💰${g} 🧪+1${up}`);ui('🛰️','任務完成',`💰${g}｜🧪回春丹 +1｜獲得裝備${up}\n累計完成：${MX.cnt}`,[{t:'🔙 返回基地',f:()=>{closeUI();enter(0)}}])}
-const _render=render;render=function(){_render();if(ai==MS&&MX.area){$('#hud').textContent+=` ｜目標：${goalTxt()}`;
+ say(`🏆 任務完成！💰${g} 🧪+1${up}`);ui('🧙','任務完成',`💰${g}｜🧪回春丹 +1｜獲得裝備${up}\n累計完成：${MX.cnt}`,[{t:'🔙 返回基地',f:()=>{closeUI();enter(0)}}])}
+const _render=render;render=function(){_render();bossArrow();if(ai==MS&&MX.area){$('#hud').textContent+=` ｜目標：${goalTxt()}`;
  const a=AREAS[MS].mx;if(!MX.fin&&!cur&&!busy&&(a.t=='hunt'?done[MS]:a.t=='core'?has.core:MX.kills>=6))mxDone()}};
 /* 戰鬥：詞綴、小王護盾與狂暴 */
 const _fight=fight;fight=function(e,k){_fight(e,k);const a=AREAS[ai].mx;if(!cur||!a)return;
@@ -881,12 +881,45 @@ const _win=win;win=function(){const a=AREAS[ai].mx;if(a&&cur){if(!cur.b)MX.kills
 const _wipe=wipe;wipe=function(){MX.on=0;_wipe()};
 const _bd=bossDown;bossDown=function(){if(!AREAS[ai].mx)return _bd();done[ai]=1;giveItem(genItem(AREAS[ai].lv+1));say('👑 小王倒下！');return false};
 /* 合體 */
-function fuse(){if(!cur||cur.lock||MX.on)return;const al=alive();
+/* 合體演出：成員化為光圈 → 機關人正面由腳到頭運鏡 */
+const cropImg=key=>{const r=SP[key];if(!r||!SH[r[0]])return null;const c=document.createElement('canvas');c.width=r[3];c.height=r[4];c.getContext('2d').drawImage(SH[r[0]].canvas,r[1],r[2],r[3],r[4],0,0,r[3],r[4]);return c.toDataURL()};
+function fuseCine(al,done){const V=view,H=V.clientHeight,Wd=V.clientWidth,ov=document.createElement('div');let fin=0;
+ ov.style.cssText='position:absolute;inset:0;z-index:9;overflow:hidden;background:radial-gradient(circle at 50% 58%,#163a6e 0%,#060812 72%);cursor:pointer';
+ const mk=(css,html)=>{const d=document.createElement('div');d.style.cssText='position:absolute;'+css;if(html)d.innerHTML=html;ov.appendChild(d);return d},
+  A=(el,kf,o)=>el.animate(kf,Object.assign({fill:'forwards',easing:'ease-in-out'},o));
+ const end=()=>{if(fin)return;fin=1;A(ov,[{opacity:1},{opacity:0}],{duration:300}).onfinish=()=>{ov.remove();done()}};
+ ov.onclick=end;V.appendChild(ov);A(ov,[{opacity:0},{opacity:1}],{duration:250});
+ /* 階段一：成員 → 光圈 → 匯入機體核心 */
+ const cx=Wd/2,cy=H*.52,n=al.length;
+ al.forEach((p,i)=>{const x=Wd*(.14+.72*(n>1?i/(n-1):.5)),y=H*.74,src=cropImg('f:'+nk(p.e)),sz=Math.min(H*.3,Wd*.2);
+  const w=mk(`left:${x-sz/2}px;top:${y-sz/2}px;width:${sz}px;height:${sz}px`,`<img src="${src||''}" style="width:100%;height:100%;object-fit:contain;image-rendering:pixelated">`);
+  const ring=mk(`left:${x-sz/2}px;top:${y-sz/2}px;width:${sz}px;height:${sz}px;border-radius:50%;border:4px solid #9fe8ff;box-shadow:0 0 22px #6fd0ff,inset 0 0 22px #6fd0ff;opacity:0`);
+  const d=i*160;
+  A(w.firstChild,[{filter:'brightness(1)'},{filter:'brightness(3) drop-shadow(0 0 12px #8cf)'}],{duration:500,delay:d});
+  A(ring,[{opacity:0,transform:'scale(.2)'},{opacity:1,transform:'scale(1)'}],{duration:400,delay:350+d});
+  A(w,[{opacity:1},{opacity:0}],{duration:300,delay:520+d});
+  const dx=cx-x,dy=cy-y;
+  A(ring,[{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.25)`,opacity:.95}],{duration:700,delay:800+d,easing:'cubic-bezier(.6,0,.9,.4)'})});
+ const t1=800+n*160+700;
+ /* 階段二：閃光＋正面由腳往頭運鏡 */
+ const fl=mk('inset:0;background:#fff;opacity:0;z-index:5');A(fl,[{opacity:0},{opacity:1},{opacity:0}],{duration:520,delay:t1-100,offset:[0,.35,1]});
+ const ih=H*.92,img=document.createElement('img'),src=cropImg('f:🤖');img.src=src||'';
+ img.style.cssText=`position:absolute;left:50%;top:${(H-ih)/2}px;height:${ih}px;margin-left:${-ih*.33}px;image-rendering:pixelated;opacity:0;filter:drop-shadow(0 0 18px #5cf)`;ov.appendChild(img);
+ const S=2.3,yf=H*.12-S*ih*.46,yh=-H*.02+S*ih*.46;
+ A(img,[{opacity:0,transform:`translateY(${yf}px) scale(${S})`,offset:0},{opacity:1,transform:`translateY(${yf}px) scale(${S})`,offset:.08},
+  {transform:`translateY(${yf}px) scale(${S})`,offset:.2},{transform:`translateY(${yh}px) scale(${S})`,offset:.68},{transform:'translateY(0) scale(1)',opacity:1,offset:1}],{duration:2600,delay:t1,easing:'linear'});
+ const ln=mk(`left:0;right:0;height:26%;background:linear-gradient(transparent,rgba(120,220,255,.35),transparent);top:100%;z-index:3`);
+ A(ln,[{top:'100%'},{top:'-30%'}],{duration:1500,delay:t1+520,easing:'ease-in'});
+ const cap=mk('left:0;right:0;bottom:7%;text-align:center;z-index:6;opacity:0;font-weight:900;color:#fff;text-shadow:0 0 10px #4cf,0 0 24px #4cf,0 2px 0 #024');
+ cap.innerHTML=`<div style="font-size:${Math.max(22,H*.075)}px">🤖 合體！</div><div style="font-size:${Math.max(14,H*.04)}px;margin-top:4px">${MX.nm}</div>`;
+ A(cap,[{opacity:0,transform:'scale(1.6)'},{opacity:1,transform:'scale(1)'}],{duration:450,delay:t1+1900});
+ setTimeout(end,t1+2600+500)}
+function fuse(){if(!cur||cur.lock||MX.on||MX.cine)return;const al=alive();
  if(al.length<3){say('⚙️ 至少要 3 名存活隊員才能合體');return render()}
  if(MX.en<100){say('⚙️ 合體能量尚未充滿');return render()}
  const cl=al.map(p=>p.cl),t=[];if(cl.some(c=>!c))t.push('破軍');if(cl.some(c=>c=='archer'||c=='mage'))t.push('穿雲');if(cl.includes('heal'))t.push('回春');if(cl.includes('dragon'))t.push('龍魂');
- MX.hl=cl.includes('heal');MX.dr=cl.includes('dragon');MX.nm=t.join('·')+'機關人';MX.on=3;MX.en=0;
- say(`🤖 合體！${MX.nm} 登場（3 回合：攻擊大增、受傷減半）`);syncMs();floatTxt('🤖合體！','#8cf',false);const lp=ms[0]&&ms[0].s.position;if(lp)for(let k=0;k<6;k++){const a=lp.clone();a.x+=(Math.random()-.5)*.4;a.y=.2;const b=a.clone();b.y+=.5;addFx(etex(k%2?'✨':'⚡',null,.8),a,b,k*70,520,.1,.22,0,true)}lunge=.3;shake=.7;fUI()}
+ MX.hl=cl.includes('heal');MX.dr=cl.includes('dragon');MX.nm=t.join('·')+'機關人';MX.en=0;MX.cine=1;cur.lock=true;
+ fuseCine(al,()=>{MX.cine=0;if(!cur)return;cur.lock=false;MX.on=3;say(`🤖 合體！${MX.nm} 登場（3 回合：攻擊大增、受傷減半）`);syncMs();floatTxt('🤖合體！','#8cf',false);const lp=ms[0]&&ms[0].s.position;if(lp)for(let k=0;k<6;k++){const a=lp.clone();a.x+=(Math.random()-.5)*.4;a.y=.2;const b=a.clone();b.y+=.5;addFx(etex(k%2?'✨':'⚡',null,.8),a,b,k*70,520,.1,.22,0,true)}lunge=.3;shake=.7;fUI()})}
 const _round=round;round=function(){if(!cur||cur.lock)return;const E=cur,al=party.filter(p=>p.hp>0),sv=al.map(p=>[p,p.atk,p.g.w]);let k=1;
  if(MX.on)k=1.6+(MX.dr?.2:0);
  if(E.b&&E.sh){if(MX.on){E.sh=0;say('💥 合體重擊擊碎了小王的護盾！');floatTxt('護盾破碎！','#ffd84a')}else k=.3}
@@ -911,6 +944,14 @@ const _afx=attackFx;attackFx=function(m,i){if(!MX.on||!ms[0])return _afx(m,i);
  addFx(last?etex('🔥',null,.8,1,'x'):etex('💥',null,.8),mp,mp,d+280,380,.25,last?1.6:.9,0,true);
  if(last)setTimeout(()=>{shake=1},d+280);
  return{hit:d+300,rg:false}};
+/* 移動畫面：小王方向箭頭（不更動原小地圖） */
+const BA=document.createElement('div');BA.id='ba';
+BA.style.cssText='position:absolute;top:30px;left:50%;transform:translateX(-50%);z-index:4;pointer-events:none;text-align:center;color:#ff5a4a;font-weight:700;text-shadow:0 0 4px #000,0 0 8px #000;display:none;line-height:1.1';
+BA.innerHTML='<div id="bar" style="font-size:34px;display:inline-block">▲</div><div id="bat" style="font-size:13px"></div>';view.appendChild(BA);
+function bossArrow(){let on=false;if(ai==MS&&MX.area&&!cur&&!busy){const S=st[ai];for(const k in S.ents){if(S.ents[k].t!='b')continue;
+  const [a,b]=k.split(',').map(Number),dx=a-S.x,dy=b-S.y,deg=(Math.atan2(dx,-dy)-dirN()*Math.PI/2)*180/Math.PI;
+  $('#bar').style.transform=`rotate(${deg}deg)`;$('#bat').textContent=`👑 小王 ${Math.abs(dx)+Math.abs(dy)} 步`;on=true;break}}
+ BA.style.display=on?'block':'none'}
 const _init=init;init=function(){_init();MX=mxNew();AREAS.length=MS};
 
 </script>
